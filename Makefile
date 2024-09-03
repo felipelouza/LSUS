@@ -15,8 +15,7 @@ LIBOBJ = \
 	external/malloc_count/malloc_count.o
 
 INPUT = dataset/example.txt
-ALG = 1
-
+ALG = 0
 
 ####
 
