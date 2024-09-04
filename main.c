@@ -166,25 +166,28 @@ int main(int argc, char *argv[]){
     case 0: printf("## IKXSUS_1 ##\n");
             //4n bytes 
             LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            SUS_T(T, LSUS, n, LCP, SA); //13n bytes
+            LSUS_T(T, LSUS, n, LCP, SA); //13n bytes
             break;
     case 1: printf("## IKXSUS_2 ##\n");
             //4n bytes 
             LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            SUS_T(T, LSUS, n, LCP1, SA); //13n bytes
+            LSUS_T(T, LSUS, n, LCP1, SA); //13n bytes
             break;
     case 2: printf("## SUS_1 ##\n");
             LSUS = PLCP;
-            SUS_1(sa_last, n, LSUS, PHI, T);
+            LSUS_1(sa_last, n, LSUS, PHI, T);
+            SUS_COVER(LSUS, PHI, n);
+            print_sus((uint_t*)LSUS, PHI, T, n);
             break;
     case 3: printf("## SUS_2 ##\n");
             LSUS=PHI;
-            SUS_2(sa_last, n, PLCP, LSUS, T);
+            LSUS_2(sa_last, n, PLCP, LSUS, T);
             break;
     default:
             break;
   }
   if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
+
 
   if(pri ==1){
     for(int_t i=0; i<=n; i++){
@@ -203,7 +206,7 @@ int main(int argc, char *argv[]){
     uint_t* SA2 = (uint_t *)malloc((n + 1) * sizeof(uint_t));
     gsacak((unsigned char *)T, (uint_t *)SA2, (int_t *)LCP2, NULL, n);
     int_t *SUS2 = (int_t *)malloc((n+1) * sizeof(int_t));
-    SUS_T(T, SUS2, n, LCP2, SA2);
+    LSUS_T(T, SUS2, n, LCP2, SA2);
     if (equal(LSUS, SUS2, n))
       printf("LSUS and SUST are equal :)\n");  
     free(SUS2);
@@ -214,13 +217,13 @@ int main(int argc, char *argv[]){
   if(alg == 0){
     free(LCP);
   }
-  if(alg == 0 || alg == 1|| alg==5 || alg == 6){
+  if(alg == 0 || alg == 1){
     free(LSUS);
   }
 
   free(T);
   free(SA);
-  if(alg==2 || alg==1 || alg==3 || alg==5 || alg==6)
+  if(alg==2 || alg==1 || alg==3 )
   {
     free(PHI);
   }

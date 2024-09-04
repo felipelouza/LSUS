@@ -26,7 +26,7 @@ void print_sus(uint_t *A, int_t *B, unsigned char *T, int_t n){
   for (int_t i = 0; i <=n; ++i)
   {
     printf("%" PRIdN "\t%" PRIdN "\t%" PRIdN "\t", i, A[i], B[A[i]]);
-    for (int_t j = A[i]; j < n; ++j)
+    for (int_t j = A[i]; j < B[i]; ++j)
     {
       if(T[j]==0) printf("#");
       else if (T[j]==1){
@@ -105,8 +105,27 @@ void buildPLCP(int_t *PLCP, int_t *PHI, unsigned char *T, int_t n){ //9n bytes
 
 /****************************************/
 
-void SUS_2(int_t sa_last, int_t n, int_t *PLCP, int_t *PHI, unsigned char *T)
-{
+void LSUS_1(int_t sa_last, int_t n, int_t *PLCP, int_t *PHI, unsigned char *T){
+
+  int_t k, cur, aux, i;
+  PHI[n]=sa_last; 
+  k=PHI[0];// sufixo que antecede o sufixo i 
+  aux=PLCP[k];
+
+  for(int_t cont=0; cont<=n; cont++){
+    i=PHI[k];
+    cur =  max(PLCP[i], aux); // tamanho da subcadeia 
+    aux=PLCP[i];
+    if (n - i >= cur && T[i+cur] != 1 && T[i+cur]!=0)
+      PLCP[i] = cur+1;
+    else PLCP[i]=0;
+    k=i; 
+  }
+
+}
+/****************************************/
+
+void LSUS_2(int_t sa_last, int_t n, int_t *PLCP, int_t *PHI, unsigned char *T){
   int_t cur, i, k, aux, cont=0;  
   PHI[n]=sa_last; 
   k=PHI[0];// sufixo que antecede o sufixo j
@@ -131,7 +150,7 @@ void SUS_2(int_t sa_last, int_t n, int_t *PLCP, int_t *PHI, unsigned char *T)
 
 /****************************************/
 
-void SUS_T(unsigned char *T, int_t *SUS, int_t n, int_t *LCP, uint_t *SA){
+void LSUS_T(unsigned char *T, int_t *SUS, int_t n, int_t *LCP, uint_t *SA){
 
   //SUS[SA[0]]=0; // O sufixo em SA[0] não é atualizado no loop, pq?
   for (int_t i = 0; i < n; i++){
@@ -144,21 +163,24 @@ void SUS_T(unsigned char *T, int_t *SUS, int_t n, int_t *LCP, uint_t *SA){
   }
 }
 
-void SUS_1(int_t sa_last, int_t n, int_t *PLCP, int_t *PHI, unsigned char *T){
+/****************************************/
+//A == LSUS
+void SUS_COVER(int_t *A, int_t *B, int_t n){
 
-  int_t k, cur, aux, i;
-  PHI[n]=sa_last; 
-  k=PHI[0];// sufixo que antecede o sufixo i 
-  aux=PLCP[k];
-
-  for(int_t cont=0; cont<=n; cont++){
-    i=PHI[k];
-    cur =  max(PLCP[i], aux); // tamanho da subcadeia 
-    aux=PLCP[i];
-    if (n - i >= cur && T[i+cur] != 1 && T[i+cur]!=0)
-      PLCP[i] = cur+1;
-    else PLCP[i]=0;
-    k=i; 
+  int_t *LSUS=A;
+  for(int_t i=0; i<n; i++){
+    //printf("%d ", LSUS[i]);
+    int min = I_MAX;
+    int l=0,r=0;
+    for(int_t j=i; j>=0; j--){
+      if(j+LSUS[j]>i && LSUS[j]<min){
+        min = LSUS[j];
+        l = j;
+        r = j+LSUS[j];
+      }
+    }
+    A[i]=l;
+    B[i]=r;
   }
 
 }
