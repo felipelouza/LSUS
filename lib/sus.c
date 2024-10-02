@@ -103,30 +103,71 @@ void buildPLCP(int_t *PLCP, int_t *PHI, unsigned char *T, int_t n){ //9n bytes
 }
 
 /****************************************/
+void LSUS13_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
+  
+  for (int_t i = 0; i < n; i++)
+    SUS[i] = 0;
 
-void LSUS_1(int_t sa_last, int_t n, int_t *PLCP, int_t *PHI, unsigned char *T){
+  //int_t pos=n;
+  int_t k, cur;
+  //until n because SA[n]=n and PHI[n]=SA[n-1] (last suffix in lexorder)
+  for (int_t i = 0; i <= n; i++){
+    k = PHI[i]; 
+    //if(k>pos) continue;
+    cur = 1+max(PLCP[i], PLCP[k]); 
+    if (n - k > cur)
+      SUS[k] = cur;
+    //else
+      //pos = min(pos, k); 
+  }
+}
+/****************************************/
+void LSUS13_2(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
 
+  //n--;
+  int_t p, cur, i;
+  for (i = 0; i < n; i++){
+    p=PHI[i];
+    //if (p!=n) SUS[p] = PLCP[i];
+    SUS[p] = PLCP[i];
+  }
+
+  for (i = 0; i <n; i++){
+    cur = 1+max(PLCP[i], SUS[i]);
+    if (n - i > cur)
+      SUS[i] = cur;
+    else
+      SUS[i] = 0;
+  }
+}
+/****************************************/
+
+void LSUS9_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t sa_last, int_t n){
+
+  int_t *SUS = PLCP;
   int_t k, cur, aux, i;
-  PHI[n]=sa_last; 
+  //PHI[n]=sa_last; 
   k=PHI[0];// sufixo que antecede o sufixo i 
   aux=PLCP[k];
 
-  for(int_t cont=0; cont<=n; cont++){
+  int_t c=0;
+  while(c<=n){
     i=PHI[k];
-    cur =  max(PLCP[i], aux); // tamanho da subcadeia 
+    cur =  1+max(PLCP[i], aux); 
     aux=PLCP[i];
-    if (n - i >= cur && T[i+cur] != 1 && T[i+cur]!=0)
-      PLCP[i] = cur+1;
-    else PLCP[i]=0;
+    if (n - i > cur)
+      SUS[i] = cur;
+    else SUS[i]=0;
     k=i; 
+    c++;
   }
 
 }
 /****************************************/
 
-void LSUS_2(int_t sa_last, int_t n, int_t *PLCP, int_t *PHI, unsigned char *T){
+void LSUS9_2(unsigned char *T, int_t *PLCP, int_t *PHI, int_t sa_last, int_t n){
   int_t cur, i, k, aux, cont=0;  
-  PHI[n]=sa_last; 
+  //PHI[n]=sa_last; 
   k=PHI[0];// sufixo que antecede o sufixo j
   aux=0;
   i=0;
@@ -139,9 +180,9 @@ void LSUS_2(int_t sa_last, int_t n, int_t *PLCP, int_t *PHI, unsigned char *T){
     cont++; 
   }
   for (i = 0; i <= n; i++){
-    cur = max(PLCP[i], PHI[i]);
-    if (n - i >= cur && T[i+cur]!= 1 && T[i+cur]!=0)
-      PHI[i] = cur+1;
+    cur = 1+max(PLCP[i], PHI[i]);
+    if (n - i > cur)
+      PHI[i] = cur;
     else
       PHI[i] = 0;
   }
@@ -180,7 +221,6 @@ void HTXSUS(unsigned char *T, int_t *A, int_t *B, int_t n){
   for (int_t i = 0; i < n; i++){
     if(ISA[i]>0){
       int_t j = SA[ISA[i]-1];
-      //while(i+x < n && j+x < n && T[i+x] == T[j+x]) x++; // && T[i+x] != 0 && T[i+x] != 1
       while(T[i+x] == T[j+x]) x++; // && T[i+x] != 0 && T[i+x] != 1
     }
     else{
@@ -188,14 +228,12 @@ void HTXSUS(unsigned char *T, int_t *A, int_t *B, int_t n){
     }
     if(ISA[i] < n-1){
       int_t j = SA[ISA[i]+1];
-      //while(i+y < n && j+y < n && T[i+y] == T[j+y]) y++;
       while(T[i+y] == T[j+y]) y++;
     }
     else{
       y = 0;
     }
     if(i+max(x,y)+1 < n)
-      //LSUS[i] = i+max(x,y);
       LSUS[i] = max(x,y)+1;
     else{
       for(int_t j=i; j<n; j++)
