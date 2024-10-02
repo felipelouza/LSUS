@@ -167,11 +167,11 @@ int main(int argc, char *argv[]){
             break; 
     case 5: printf("## LSUS_9n_v1 ##\n");
             LSUS = PLCP;
-            LSUS9_1(T, LSUS, PHI, sa_last, n); //13n bytes
+            LSUS9_1(T, LSUS, PHI, sa_last, n); //9n bytes
             break;
     case 6: printf("## LSUS_9n_v2 ##\n");
             LSUS=PHI;
-            LSUS9_2(T, PLCP, LSUS, sa_last, n); //13n bytes
+            LSUS9_2(T, PLCP, LSUS, sa_last, n); //9n bytes
             break;
     default:
             break;

@@ -20,31 +20,13 @@ void print(uint_t *A, int_t *B, unsigned char *T, int_t n){
   }
 }
 
-void print_sus(uint_t *A, int_t *B, unsigned char *T, int_t n){
-  printf("i\tA\tB\tSuffixes\n");
-  for (int_t i = 0; i <=n; ++i)
-  {
-    printf("%" PRIdN "\t%" PRIdN "\t%" PRIdN "\t", i, A[i], B[A[i]]);
-    for (int_t j = A[i]; j < B[i]; ++j)
-    {
-      if(T[j]==0) printf("#");
-      else if (T[j]==1){
-        printf("$");
-        break;
-      }
-      else printf("%c", T[j]-1);
-    }
-    printf("\n");
-  }
-}
-
 /****************************************/
 
 bool equal(int_t *v1, int_t *v2, int_t tam){
 
   for (int_t i = 0; i <tam; i++){
     if (v1[i] != v2[i]){
-      printf("SUS and SUST are different in %" PRIdN " SUS: %" PRIdN " \t SUS_T: %" PRIdN "\n", i, v1[i], v2[i]);
+      printf("LSUS and SUST are different in %" PRIdN " SUS: %" PRIdN " \t SUS_T: %" PRIdN "\n", i, v1[i], v2[i]);
       return false;
     }
   }
@@ -64,8 +46,7 @@ void isa(int_t *ISA, int_t n, uint_t *SA){
 
 void phi(int_t *PHI, int_t n, int_t *ISA, uint_t *SA){
   isa(ISA, n, SA);
-  for (int_t i = 0; i <= n; i++)
-  {
+  for (int_t i = 0; i <= n; i++){
     if (ISA[i] != 0)
       PHI[i] = SA[ISA[i] - 1];
     else
@@ -103,10 +84,10 @@ void buildPLCP(int_t *PLCP, int_t *PHI, unsigned char *T, int_t n){ //9n bytes
 }
 
 /****************************************/
-void LSUS13_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
+void LSUS13_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *LSUS, int_t n){
   
   for (int_t i = 0; i < n; i++)
-    SUS[i] = 0;
+    LSUS[i] = 0;
 
   //int_t pos=n;
   int_t k, cur;
@@ -116,35 +97,35 @@ void LSUS13_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
     //if(k>pos) continue;
     cur = 1+max(PLCP[i], PLCP[k]); 
     if (n - k > cur)
-      SUS[k] = cur;
+      LSUS[k] = cur;
     //else
       //pos = min(pos, k); 
   }
 }
 /****************************************/
-void LSUS13_2(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
+void LSUS13_2(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *LSUS, int_t n){
 
   //n--;
   int_t p, cur, i;
   for (i = 0; i < n; i++){
     p=PHI[i];
-    //if (p!=n) SUS[p] = PLCP[i];
-    SUS[p] = PLCP[i];
+    //if (p!=n) LSUS[p] = PLCP[i];
+    LSUS[p] = PLCP[i];
   }
 
   for (i = 0; i <n; i++){
-    cur = 1+max(PLCP[i], SUS[i]);
+    cur = 1+max(PLCP[i], LSUS[i]);
     if (n - i > cur)
-      SUS[i] = cur;
+      LSUS[i] = cur;
     else
-      SUS[i] = 0;
+      LSUS[i] = 0;
   }
 }
 /****************************************/
 
 void LSUS9_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t sa_last, int_t n){
 
-  int_t *SUS = PLCP;
+  int_t *LSUS = PLCP;
   int_t k, cur, aux, i;
   //PHI[n]=sa_last; 
   k=PHI[0];// sufixo que antecede o sufixo i 
@@ -156,8 +137,8 @@ void LSUS9_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t sa_last, int_t n){
     cur =  1+max(PLCP[i], aux); 
     aux=PLCP[i];
     if (n - i > cur)
-      SUS[i] = cur;
-    else SUS[i]=0;
+      LSUS[i] = cur;
+    else LSUS[i]=0;
     k=i; 
     c++;
   }
@@ -190,15 +171,15 @@ void LSUS9_2(unsigned char *T, int_t *PLCP, int_t *PHI, int_t sa_last, int_t n){
 
 /****************************************/
 
-void IKXSUS(unsigned char *T, int_t *SUS, int_t n, int_t *LCP, uint_t *SA){
+void IKXSUS(unsigned char *T, int_t *LSUS, int_t n, int_t *LCP, uint_t *SA){
 
   for (int_t i = 0; i < n; i++)
-    SUS[i] = 0;
+    LSUS[i] = 0;
 
   for (int_t i = 0; i < n; i++){
     int_t cur = 1+max(lcp(i), lcp(i + 1));
     if (n-SA[i] > cur)
-      SUS[SA[i]] = cur;
+      LSUS[SA[i]] = cur;
   }
 }
 

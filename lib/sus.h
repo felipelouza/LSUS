@@ -25,8 +25,6 @@ void isa(int_t *ISA, int_t n, uint_t *SA);
 void phi (int_t *PHI, int_t n, int_t *ISA, uint_t *SA);
 void buildPHI(int_t *PHI, int_t n, uint_t *SA);
 void print(uint_t *SA, int_t *SUS, unsigned char *T, int_t n);
-void print_sus(uint_t *SA, int_t *SUS, unsigned char *T, int_t n);
-void SUS_C(int_t *ISA, uint_t *SA, int_t *LCP, int_t n, unsigned char *T);
 void lcp_plcp(int_t *LCP, int_t *PLCP, uint_t *SA, int_t n);
 
 #endif
