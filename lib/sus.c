@@ -1,4 +1,3 @@
-
 #include "sus.h"
 
 #define lcp(i) ((i < n) ? (LCP[i]) : (0))
@@ -91,7 +90,7 @@ void buildPLCP(int_t *PLCP, int_t *PHI, unsigned char *T, int_t n){ //9n bytes
   for (int_t i = 0; i <= n; i++){
     k = PHI[i];
     if (k != n){
-      while (T[k + l] == T[i + l] && T[k+l]!=1){
+      while (T[k + l] == T[i + l] && T[k+l]!=TERMINATOR){
         l++;
       }
       PLCP[i] = l;
@@ -150,37 +149,65 @@ void LSUS_2(int_t sa_last, int_t n, int_t *PLCP, int_t *PHI, unsigned char *T){
 
 /****************************************/
 
-void LSUS_T(unsigned char *T, int_t *SUS, int_t n, int_t *LCP, uint_t *SA){
+void IKXSUS(unsigned char *T, int_t *SUS, int_t n, int_t *LCP, uint_t *SA){
 
-  //SUS[SA[0]]=0; // O sufixo em SA[0] não é atualizado no loop, pq?
+  for (int_t i = 0; i < n; i++)
+    SUS[i] = 0;
+
   for (int_t i = 0; i < n; i++){
-    int_t cur = max(lcp(i), lcp(i + 1))+1;
-
-    if (T[SA[i]+cur-1] != 1 && T[SA[i]+cur-1]!=0 && cur+SA[i]<=n-1) //separator == 1
+    int_t cur = 1+max(lcp(i), lcp(i + 1));
+    if (n-SA[i] > cur)
       SUS[SA[i]] = cur;
-    else 
-      SUS[SA[i]]=0;
   }
 }
 
 /****************************************/
-//A == LSUS
-void SUS_COVER(int_t *A, int_t *B, int_t n){
 
-  int_t *LSUS=A;
-  for(int_t i=0; i<n; i++){
-    //printf("%d ", LSUS[i]);
-    int min = I_MAX;
-    int l=0,r=0;
-    for(int_t j=i; j>=0; j--){
-      if(j+LSUS[j]>i && LSUS[j]<min){
-        min = LSUS[j];
-        l = j;
-        r = j+LSUS[j];
-      }
+
+void HTXSUS(unsigned char *T, int_t *A, int_t *B, int_t n){
+
+  int_t *SA = A;
+  int_t *LSUS= B;
+  int_t *ISA = B;
+
+  for (int_t i = 0; i < n; i++)
+    ISA[SA[i]] = i;
+
+  //print(SA, ISA, T, n);
+
+  int_t x=0, y=0;
+
+  for (int_t i = 0; i < n; i++){
+    if(ISA[i]>0){
+      int_t j = SA[ISA[i]-1];
+      //while(i+x < n && j+x < n && T[i+x] == T[j+x]) x++; // && T[i+x] != 0 && T[i+x] != 1
+      while(T[i+x] == T[j+x]) x++; // && T[i+x] != 0 && T[i+x] != 1
     }
-    A[i]=l;
-    B[i]=r;
+    else{
+      x=0;
+    }
+    if(ISA[i] < n-1){
+      int_t j = SA[ISA[i]+1];
+      //while(i+y < n && j+y < n && T[i+y] == T[j+y]) y++;
+      while(T[i+y] == T[j+y]) y++;
+    }
+    else{
+      y = 0;
+    }
+    if(i+max(x,y)+1 < n)
+      //LSUS[i] = i+max(x,y);
+      LSUS[i] = max(x,y)+1;
+    else{
+      for(int_t j=i; j<n; j++)
+        LSUS[j]=0;
+      break;
+    }
+    if(x>0) x--;
+    if(y>0) y--;
   }
 
+  LSUS[n]=0;
 }
+
+/****************************************/
+

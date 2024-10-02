@@ -72,7 +72,7 @@ unsigned char* cat_char(unsigned char** R, int_t k, size_t *n){
 			else (*n)--;
 		}
 #if CAT == 1
-    str[l++] = 1; //add 1 as separator
+    str[l++] = SEPARATOR; //add 1 as separator
 #endif
 	}
 
@@ -83,7 +83,7 @@ unsigned char* cat_char(unsigned char** R, int_t k, size_t *n){
 	}
 	*n = l;
 	
-  str[*n]=0;
+  str[*n]=TERMINATOR;
 
 return str;
 }

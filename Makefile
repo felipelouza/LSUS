@@ -11,8 +11,10 @@ LIBOBJ = \
 	lib/sus.o\
 	lib/file.o\
 	lib/utils.o\
-	external/gsacak.o\
+	external/sacak-lcp.o\
 	external/malloc_count/malloc_count.o
+
+#	external/gsacak.o\
 
 INPUT = dataset/example.txt
 ALG = 0

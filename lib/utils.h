@@ -27,7 +27,9 @@
 	#define DEBUG 0 
 #endif
 
-#define CAT 1
+#define CAT 0
+#define TERMINATOR 0
+#define SEPARATOR 0
 
 #if M64
 	typedef int64_t  int_t;

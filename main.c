@@ -14,7 +14,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "external/gsacak.h"
+//#include "external/gsacak.h"
+#include "external/sacak-lcp.h"
 #include "lib/sus.h"
 #include "lib/file.h"
 #include "lib/utils.h"
@@ -90,9 +91,6 @@ int main(int argc, char *argv[]){
   int_t *PHI = NULL;
   int_t *PLCP = NULL;
   int_t *LSUS = NULL;
-#if DEBUG
-  printf("T = %s$\n\n", T);
-#endif
 
   //================================
   //COMPUTING SA
@@ -105,7 +103,7 @@ int main(int argc, char *argv[]){
     LCP = (int_t *)malloc((n + 1) * sizeof(int_t));
     if(time) time_start(&t_start, &c_start);
     printf("## SACAK_lcp ##\n");
-    gsacak((unsigned char *)T, (uint_t *)SA, (int_t *)LCP, NULL, n);
+    sacak_lcp((unsigned char *)T, (uint_t *)SA, (int_t *)LCP, n);
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
   }
 
@@ -114,7 +112,8 @@ int main(int argc, char *argv[]){
   if(alg==1){ //OKAY
     if(time) time_start(&t_start, &c_start);
     printf("## SACAK ##\n");
-    gsacak((unsigned char *)T, (uint_t *)SA, NULL, NULL, n);
+    //gsacak((unsigned char *)T, (uint_t *)SA, NULL, NULL, n);
+    sacak((unsigned char *)T, (uint_t *)SA, n);
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
     PHI = (int_t *)malloc((n + 1) * sizeof(int_t));
     if(time) time_start(&t_start, &c_start);
@@ -138,7 +137,8 @@ int main(int argc, char *argv[]){
 
     if(time) time_start(&t_start, &c_start);
     printf("## SACAK ##\n");
-    gsacak((unsigned char *)T, (uint_t *)SA, NULL, NULL, n);
+    //gsacak((unsigned char *)T, (uint_t *)SA, NULL, NULL, n);
+    sacak((unsigned char *)T, (uint_t *)SA, n);
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
 
     sa_last = SA[n-1];
@@ -157,6 +157,14 @@ int main(int argc, char *argv[]){
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
   }
 
+  if(alg==4){
+    if(time) time_start(&t_start, &c_start);
+    printf("## SACAK ##\n");
+    //gsacak((unsigned char *)T, (uint_t *)SA, NULL, NULL, n);
+    sacak((unsigned char *)T, (uint_t *)SA, n);
+    if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
+  }
+
   //================================
   //ALGORITHMS
   //================================
@@ -166,22 +174,26 @@ int main(int argc, char *argv[]){
     case 0: printf("## IKXSUS_1 ##\n");
             //4n bytes 
             LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            LSUS_T(T, LSUS, n, LCP, SA); //13n bytes
+            IKXSUS(T, LSUS, n, LCP, SA); //13n bytes
             break;
     case 1: printf("## IKXSUS_2 ##\n");
             //4n bytes 
             LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            LSUS_T(T, LSUS, n, LCP1, SA); //13n bytes
+            IKXSUS(T, LSUS, n, LCP1, SA); //13n bytes
             break;
     case 2: printf("## SUS_1 ##\n");
             LSUS = PLCP;
             LSUS_1(sa_last, n, LSUS, PHI, T);
-            SUS_COVER(LSUS, PHI, n);
-            print_sus((uint_t*)LSUS, PHI, T, n);
             break;
     case 3: printf("## SUS_2 ##\n");
             LSUS=PHI;
             LSUS_2(sa_last, n, PLCP, LSUS, T);
+            break;
+    case 4: printf("## HTXSUS ##\n");
+            LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
+            int_t *A = (int_t*) SA;
+            int_t *B = LSUS;
+            HTXSUS(T, A, B, n);
             break;
     default:
             break;
@@ -204,9 +216,10 @@ int main(int argc, char *argv[]){
   if (comp == 1){
     int_t* LCP2 = (int_t *)malloc((n + 1) * sizeof(int_t));
     uint_t* SA2 = (uint_t *)malloc((n + 1) * sizeof(uint_t));
-    gsacak((unsigned char *)T, (uint_t *)SA2, (int_t *)LCP2, NULL, n);
+    //gsacak((unsigned char *)T, (uint_t *)SA2, (int_t *)LCP2, NULL, n);
+    sacak_lcp((unsigned char *)T, (uint_t *)SA2, (int_t *)LCP2, n);
     int_t *SUS2 = (int_t *)malloc((n+1) * sizeof(int_t));
-    LSUS_T(T, SUS2, n, LCP2, SA2);
+    IKXSUS(T, SUS2, n, LCP2, SA2);
     if (equal(LSUS, SUS2, n))
       printf("LSUS and SUST are equal :)\n");  
     free(SUS2);
@@ -217,7 +230,7 @@ int main(int argc, char *argv[]){
   if(alg == 0){
     free(LCP);
   }
-  if(alg == 0 || alg == 1){
+  if(alg == 0 || alg == 1 || alg == 4){
     free(LSUS);
   }
 
