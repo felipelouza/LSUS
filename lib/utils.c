@@ -83,7 +83,6 @@ unsigned char* cat_char(unsigned char** R, int_t k, size_t *n){
 	}
 	*n = l;
 	
-  str[*n]=TERMINATOR;
 
 return str;
 }
