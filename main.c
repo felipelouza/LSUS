@@ -120,7 +120,6 @@ int main(int argc, char *argv[]){
 
     if(time) time_start(&t_start, &c_start);
     printf("## SACAK ##\n");
-    //gsacak((unsigned char *)T, (uint_t *)SA, NULL, NULL, n);
     sacak((unsigned char *)T, (uint_t *)SA, n);
     //if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
 
@@ -137,6 +136,23 @@ int main(int argc, char *argv[]){
     //if(time) time_start(&t_start, &c_start);
     printf("## PLCP ##\n");
     buildPLCP(PLCP, PHI, T, n);//9n
+    if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
+  }
+
+  //PLCPSUS 
+  //T + SA + PHI = 9n bytes
+  if(alg==7){
+    if(time) time_start(&t_start, &c_start);
+    printf("## SACAK ##\n");
+    sacak((unsigned char *)T, (uint_t *)SA, n);
+    //if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
+
+    PHI = (int_t *)malloc((n + 1) * sizeof(int_t));
+    //if(time) time_start(&t_start, &c_start);
+    printf("## PHI ##\n");
+    buildPHI(PHI, n, SA);//8n bytes 
+    //if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
+
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
   }
 
@@ -172,6 +188,11 @@ int main(int argc, char *argv[]){
     case 6: printf("## LSUS_9n_v2 ##\n");
             LSUS=PHI;
             LSUS9_2(T, PLCP, LSUS, sa_last, n); //9n bytes
+            break;
+    case 7: printf("## PLCPSUS ##\n");
+            LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
+            PLCP = (int_t*) SA; 
+            PLCPSUS(T, PLCP, PHI, LSUS, n); //9n bytes
             break;
     default:
             break;
@@ -212,7 +233,7 @@ int main(int argc, char *argv[]){
     free(SUS2); free(LCP2); free(SA2);
   }
 
-  if( alg == 1 || alg == 2 || alg==3 || alg == 4){
+  if( alg == 1 || alg == 2 || alg==3 || alg == 4 || alg == 7){
     free(LSUS);
   }
 

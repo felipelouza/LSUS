@@ -230,3 +230,33 @@ void HTXSUS(unsigned char *T, int_t *A, int_t *B, int_t n){
 
 /****************************************/
 
+void PLCPSUS(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
+
+  int_t l = 0, k = 0, cur=0;
+  for (int_t i = 0; i <= n; i++) SUS[i]=PLCP[i]=-1;
+
+  PLCP[n] = 0;
+  for (int_t i = 0; i <= n; i++){
+    k = PHI[i];
+    if (k != n){
+      while ( T[k+l]!=1 && T[k + l] == T[i + l] ){
+        l++;
+      }
+      PLCP[i] = l;
+      SUS[k] = l;
+      l = max((l - 1), 0);
+
+      if (SUS[i]!= -1){
+        cur = 1+max(PLCP[i], SUS[i]) ;
+        if (n - i > cur) SUS[i] = cur;
+        else SUS[i]=0;
+      }
+      if (PLCP[k]!= -1){
+        cur = 1+max(PLCP[k], SUS[k]);
+        if (n - k  > cur) SUS[k] = cur;
+        else SUS[k]=0;
+      }
+    }
+    else PLCP[i] = 0;
+  }
+}

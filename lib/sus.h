@@ -18,6 +18,7 @@ void LSUS13_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n);
 void LSUS13_2(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n);
 void LSUS9_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t sa_last, int_t n);
 void LSUS9_2(unsigned char *T, int_t *PLCP, int_t *PHI, int_t sa_last, int_t n);
+void PLCPSUS(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n);
 
 bool equal(int_t *v1, int_t *v2, int_t tam);
 void buildPLCP(int_t *PLCP, int_t *PHI, unsigned char *T, int_t n); //9n bytes
