@@ -190,8 +190,10 @@ int main(int argc, char *argv[]){
             LSUS9_2(T, PLCP, LSUS, sa_last, n); //9n bytes
             break;
     case 7: printf("## PLCPSUS ##\n");
-            LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            PLCP = (int_t*) SA; 
+            //LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
+            //PLCP = (int_t*) SA; 
+            PLCP = PHI;
+            LSUS = (int_t*) SA;
             PLCPSUS(T, PLCP, PHI, LSUS, n); //9n bytes
             break;
     default:
@@ -208,12 +210,12 @@ int main(int argc, char *argv[]){
   if(pri ==1){
     for(int_t i=0; i<=n; i++){
       if(T[i]!=1 && T[i]!=0){
-        printf("LSUS[%" PRIdN "]: \t %" PRIdN "\t T[%" PRIdN "]:\t %c\n", i, LSUS[i]-1, i, T[i]-1);
+        printf("LSUS[%" PRIdN "]: \t %" PRIdN "\t T[%" PRIdN "]:\t %c\n", i, LSUS[i], i, T[i]-1);
       }
       else if(T[i]==1)
-        printf("LSUS[%"PRIdN"]: \t %"PRIdN"\t T[%"PRIdN"]:\t %d\n", i, LSUS[i]-1, i, 1);
+        printf("LSUS[%"PRIdN"]: \t %"PRIdN"\t T[%"PRIdN"]:\t %d\n", i, LSUS[i], i, 1);
       else if(T[i]==0)
-        printf("LSUS[%"PRIdN"]: \t %"PRIdN"\t T[%"PRIdN"]:\t %d\n", i, LSUS[i]-1, i, 0);
+        printf("LSUS[%"PRIdN"]: \t %"PRIdN"\t T[%"PRIdN"]:\t %d\n", i, LSUS[i], i, 0);
     }
   }
   //VALIDATION
@@ -233,7 +235,7 @@ int main(int argc, char *argv[]){
     free(SUS2); free(LCP2); free(SA2);
   }
 
-  if( alg == 1 || alg == 2 || alg==3 || alg == 4 || alg == 7){
+  if( alg == 1 || alg == 2 || alg==3 || alg == 4 ){
     free(LSUS);
   }
 

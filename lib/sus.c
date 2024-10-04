@@ -232,27 +232,36 @@ void HTXSUS(unsigned char *T, int_t *A, int_t *B, int_t n){
 
 void PLCPSUS(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
 
+  for (int_t i = 0; i <= n; i++) PHI[i]=(PHI[i]+1)*(-1);
   int_t l = 0, k = 0, cur=0;
-  for (int_t i = 0; i <= n; i++) SUS[i]=PLCP[i]=-1;
+  //for (int_t i = 0; i <= n; i++) SUS[i]=PLCP[i]=-1;
+  for (int_t i = 0; i <= n; i++) SUS[i]=-1;
 
-  PLCP[n] = 0;
+  //PLCP[n] = 0;
   for (int_t i = 0; i <= n; i++){
-    k = PHI[i];
+    k = (PHI[i]+1)*(-1);
+    //printf("%d\t%d\n", i, k);
     if (k != n){
       while ( T[k+l]!=1 && T[k + l] == T[i + l] ){
         l++;
       }
       PLCP[i] = l;
+      //printf("PLCP[%d] = %d\n", i, PLCP[i]);
       SUS[k] = l;
+      //printf("SUS[%d] = %d\n", k, SUS[k]);
       l = max((l - 1), 0);
 
-      if (SUS[i]!= -1){
+     // if (SUS[i]!= -1){
+        //printf("$PLCP[%d] = %d\t%d\n", i, PLCP[i], SUS[i]);
         cur = 1+max(PLCP[i], SUS[i]) ;
+        //printf("%d\n", cur);
         if (n - i > cur) SUS[i] = cur;
         else SUS[i]=0;
-      }
-      if (PLCP[k]!= -1){
+     // }
+      if (PLCP[k]>= 0){
+        //printf("*PLCP[%d] = %d\n", k, PLCP[k]);
         cur = 1+max(PLCP[k], SUS[k]);
+        //printf("%d\n", cur);
         if (n - k  > cur) SUS[k] = cur;
         else SUS[k]=0;
       }
