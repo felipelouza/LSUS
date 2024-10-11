@@ -236,7 +236,7 @@ void PLCPSUS(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
 
   //for (int_t i = 0; i <= n; i++) PHI[i]=(PHI[i]+1)*(-1);
   //for (int_t i = 0; i <= n; i++) SUS[i]=PLCP[i]=-1;
-  for (int_t i = 0; i <= n; i++) SUS[i]=0;
+  for (int_t i = 0; i <= n; i++) SUS[i]=-1;
 
   //PLCP[n] = 0;
   int_t l = 0, k = 0, cur=0;
@@ -248,23 +248,29 @@ void PLCPSUS(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
       while (T[k + l] == T[i + l]){
         l++;
       }
-      PLCP[i] = l;
-      SUS[k] = l;
 
-     // if (SUS[i]!= -1){
+      //PLCP[i] = l;
+      //SUS[k] = l;
+
+      if (SUS[i]!= -1){
         cur = 1+max(l, SUS[i]) ;
         if (n - i > cur) SUS[i] = cur;
         else SUS[i]=0;
-     // }
+      }
+      else
+        SUS[i] = l;
+
       //if (PLCP[k]>= 0){
       if (k < i){ //PLCP of S_PHI[i] has been computed?
-        cur = 1+max(PLCP[k], l);
+        cur = 1+max(SUS[k], l);
         if (n - k  > cur) SUS[k] = cur;
         else SUS[k]=0;
       }
+      else
+        SUS[k] = l;
 
       l = max((l - 1), 0);
     }
-    else PLCP[i] = 0;
+    else SUS[i] = 0;
   }
 }
