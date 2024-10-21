@@ -368,6 +368,31 @@ void induceSAs0(uint_t *SA,
     }
 }
 
+void induceSAs0_PHI(uint_t *SA, int_t *PHI,
+  int_t *s, uint_t *bkt,
+  uint_t n, unsigned int K, int_t suffix, int_t cs) {
+  uint_t i, j;
+
+  // find the end of each bucket.
+  getBuckets_k(s, bkt, n, K, true, cs);
+
+  uint_t prev=n;
+  for(i=n-1; i>0; i--){
+    PHI[prev] = SA[i];
+    prev = SA[i];
+    if(SA[i]>0) {
+      j=SA[i]-1;
+      if(chr(j)<=chr(j+1) && bkt[chr(j)]<i) {
+        SA[bkt[chr(j)]]=j;
+        bkt[chr(j)]--;
+        if(!suffix) SA[i]=0;
+      }
+    }
+  }
+  PHI[prev] = SA[i];
+  PHI[n-1]=n;
+}
+
 void induceSAs0_LCP(uint_t *SA, int_t *LCP,
   int_t *s, uint_t *bkt,
   uint_t n, unsigned int K, int_t cs) {
@@ -1132,6 +1157,199 @@ return depth;
 
 /*****************************************************************************/
 
+int_t SACA_K_PHI(int_t *s, uint_t *SA, int_t *PHI,
+  uint_t n, unsigned int K,
+  uint_t m, int_t cs, int_t level) {
+  uint_t i;
+  uint_t *bkt=NULL;
+
+  //avoid Use of uninitialised value (valgrind)
+  for(i=0;i<n;i++) SA[i]=PHI[i]=0;
+
+  #if TIME
+    time_t t_time = 0;
+    clock_t c_time = 0;
+  #endif
+
+  #if DEPTH
+  time_t t_start = time(NULL);
+  clock_t c_start =  clock();
+  #endif
+
+  // stage 1: reduce the problem by at least 1/2.
+  bkt=(uint_t *)malloc(sizeof(int_t)*K);
+  putSubstr0(SA, s, bkt, n, K, cs);
+
+  #if DEBUG
+  printf("bucket LMS-subs\n");
+  for(i=0; i<n; i++)
+        printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+  induceSAl0(SA, s, bkt, n, K, false, cs);
+
+  #if DEBUG
+  printf("L-type\n");
+  for(i=0; i<n; i++)
+        printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  induceSAs0(SA, s, bkt, n, K, false, cs);
+
+  #if DEBUG
+  printf("S-type\n");
+  for(i=0; i<n; i++)
+        printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  // now, all the LMS-substrings are sorted and
+  //   stored sparsely in SA.
+
+  // compact all the sorted substrings into
+  //   the first n1 items of SA.
+  // 2*n1 must be not larger than n.
+  uint_t n1=0;
+  for(i=0; i<n; i++)
+    if(SA[i]>0)
+      SA[n1++]=SA[i];
+
+  #if DEBUG
+  printf("SA1\n");
+  for(i=0; i<n1; i++)
+        printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  uint_t *SA1=SA, *s1=SA+m-n1;
+  uint_t name_ctr;
+
+  #if DEBUG
+  printf("\nSA\n");
+  for(i=0; i<n; i++)
+    printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  name_ctr=nameSubstr(SA,s,s1,n,m,n1,level,cs);
+
+  #if DEBUG
+  printf("nameSubstr:\n");
+  printf("SA\n");
+  for(i=0; i<n; i++)
+    printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  // stage 2: solve the reduced problem.
+  int_t depth=1;
+  // recurse if names are not yet unique.
+  if(name_ctr<n1)
+    depth += SACA_K((int_t*)s1, SA1,
+          n1, 0, m-n1, sizeof(int_t), level+1);
+  else // get the suffix array of s1 directly.
+    for(i=0; i<n1; i++) SA1[s1[i]]=i;
+
+  // stage 3: induce SA(S) from SA(S1).
+  #if DEBUG
+  printf("recursive:\n");
+  printf("SA\n");
+  for(i=0; i<n; i++)
+    printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  getSAlms(SA, s, s1, n, n1, level, cs);
+
+  #if DEBUG
+  printf("getSAlms:\n");
+  printf("SA\n");
+  for(i=0; i<n; i++)
+    printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  for(i=0; i<n1; i++) SA[i]=s1[SA[i]];
+  for(i=n1; i<n; i++) SA[i]=level?EMPTY_k:0;
+
+  #if DEBUG
+  printf("SA\n");
+  for(i=0; i<n; i++)
+    printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  #if TIME
+    t_start(&t_time, &c_time);
+  #endif
+
+  putSuffix0(SA, s, bkt, n, K, n1, cs);
+
+  #if TIME
+    printf("SA (mapped):\n");
+    t_stop(t_time, c_time);
+  #endif
+
+  #if DEBUG
+  printf("SA (mapped)\n");
+  for(i=0; i<n; i++)
+        printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  #if TIME
+    t_start(&t_time, &c_time);
+  #endif
+
+  induceSAl0(SA, s, bkt, n, K, true, cs);
+
+  #if TIME
+    printf("L-type:\n");
+    t_stop(t_time, c_time);
+  #endif
+
+  #if DEBUG
+  printf("L-type\n");
+  for(i=0; i<n; i++)
+        printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  #endif
+
+  #if TIME
+    t_start(&t_time, &c_time);
+  #endif
+
+  induceSAs0_PHI(SA, PHI, s, bkt, n, K, true, cs);
+
+  #if TIME
+    printf("S-type:\n");
+    t_stop(t_time, c_time);
+  #endif
+
+  #if DEBUG
+  printf("S-type\n");
+  for(i=0; i<n; i++)
+        printf("%" PRIdN "\t", SA[i]+1);
+  printf("\n");
+  printf("PHI\n");
+  for(i=0; i<n; i++)
+        printf("%" PRIdN "\t", PHI[i]);
+  printf("\n\n");
+  #endif
+  free(bkt);
+
+  #if DEPTH
+  printf("depth %" PRIdN ":\nname_ctr = %" PRIdN ", n1 =%" PRIdN ", n = %" PRIdN "\n", depth, name_ctr, n1, n);
+  t_stop(t_start, c_start);
+  #endif
+
+return depth;
+}
+
+
+/*****************************************************************************/
+
 int_t SACA_K_LCP(int_t *s, uint_t *SA, int_t *LCP,
   uint_t n, unsigned int K,
   uint_t m, int_t cs, int_t level) {
@@ -1395,6 +1613,11 @@ int_t sacak(unsigned char *s, uint_t *SA, uint_t n){
 int_t sacak_int(int_t *s, uint_t *SA, uint_t n, uint_t k){
   if((s == NULL) || (SA == NULL) || (n < 0)) return -1;
   return SACA_K((int_t*)s, (uint_t*)SA, n, k, n, sizeof(int_t), 0);
+}
+
+int_t sacak_phi(unsigned char *s, uint_t *SA, int_t* PHI, uint_t n){
+  if((s == NULL) || (SA == NULL) || (PHI == NULL) || (n < 0)) return -1;
+  return SACA_K_PHI((int_t*)s, (uint_t*)SA, (int_t*)PHI, n, 256, n, sizeof(char), 0);
 }
 
 int_t sacak_lcp(unsigned char *s, uint_t *SA, int_t* LCP, uint_t n){

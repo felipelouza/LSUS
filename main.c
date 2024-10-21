@@ -100,8 +100,15 @@ int main(int argc, char *argv[]){
   if(alg == 1){
     LCP = (int_t *)malloc((n + 1) * sizeof(int_t));
     if(time) time_start(&t_start, &c_start);
-    printf("## SACAK_lcp ##\n");
-    sacak_lcp((unsigned char *)T, (uint_t *)SA, (int_t *)LCP, n);
+    //printf("## SACAK_lcp ##\n");
+    //sacak_lcp((unsigned char *)T, (uint_t *)SA, (int_t *)LCP, n);
+    sacak((unsigned char *)T, (uint_t *)SA, n);
+    PHI = (int_t*) LCP;
+    buildPHI(PHI, n, SA);
+    PLCP = (int_t *)malloc((n + 1) * sizeof(int_t));
+    buildPLCP(PLCP, PHI, T, n);
+    lcp_plcp(LCP, PLCP, SA, n);
+    LSUS = PLCP;
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
   }
   //HTXSUS (TCS 2017)
@@ -149,9 +156,10 @@ int main(int argc, char *argv[]){
 
     PHI = (int_t *)malloc((n + 1) * sizeof(int_t));
     //if(time) time_start(&t_start, &c_start);
+    //sacak_phi((unsigned char *)T, (uint_t *)SA, PHI, n);
     printf("## PHI ##\n");
     buildPHI(PHI, n, SA);//8n bytes 
-    //if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
+    if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
 
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
   }
@@ -164,7 +172,7 @@ int main(int argc, char *argv[]){
   switch (alg){
     case 1: printf("## IKXSUS ##\n");
             //4n bytes 
-            LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
+            //LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
             IKXSUS(T, LSUS, n, LCP, SA); //13n bytes
             break;
     case 2: printf("## HTXSUS ##\n");

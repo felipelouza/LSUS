@@ -245,6 +245,7 @@ void PLCPSUS(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n){
     //k = (PHI[i]+1)*(-1);
     k = PHI[i];
     if (k != n){
+      //current LCP
       while (T[k + l] == T[i + l]){
         l++;
       }
