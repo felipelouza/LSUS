@@ -8,7 +8,7 @@ CFLAGS += -D_FILE_OFFSET_BITS=64 -DM64=$(M64) -m64 -O3 -fomit-frame-pointer -Wno
 LFLAGS = -lm -lrt -ldl
 
 LIBOBJ = \
-	lib/sus.o\
+	lib/lsus.o\
 	lib/file.o\
 	lib/utils.o\
 	external/sacak-lcp.o\

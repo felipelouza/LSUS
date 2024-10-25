@@ -16,7 +16,7 @@
 
 //#include "external/gsacak.h"
 #include "external/sacak-lcp.h"
-#include "lib/sus.h"
+#include "lib/lsus.h"
 #include "lib/file.h"
 #include "lib/utils.h"
 #include "external/malloc_count/malloc_count.h"  
@@ -216,7 +216,7 @@ int main(int argc, char *argv[]){
 
 
   if(pri ==1){
-    for(int_t i=0; i<=n; i++){
+    for(int_t i=0; i<n; i++){
       if(T[i]!=1 && T[i]!=0){
         printf("LSUS[%" PRIdN "]: \t %" PRIdN "\t T[%" PRIdN "]:\t %c\n", i, LSUS[i], i, T[i]-1);
       }
