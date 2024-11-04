@@ -26,13 +26,13 @@ sizeof(int) = 4 bytes
 ## SACAK ##
 ## PHI ##
 ## PLCPSUS ##
-LSUS[0]: 	 1	 T[0]:	 G
-LSUS[1]: 	 4	 T[1]:	 C
-LSUS[2]: 	 3	 T[2]:	 T
-LSUS[3]: 	 0	 T[3]:	 C
-LSUS[4]: 	 0	 T[4]:	 T
-LSUS[5]: 	 0	 T[5]:	 C
-LSUS[6]: 	 0	 T[6]:	 0
-LSUS[7]: 	 0	 T[7]:	 0
+LSUS[0]: 1	 T[0]: G
+LSUS[1]: 4	 T[1]: C
+LSUS[2]: 3	 T[2]: T
+LSUS[3]: 0	 T[3]: C
+LSUS[4]: 0	 T[4]: T
+LSUS[5]: 0	 T[5]: C
+LSUS[6]: 0	 T[6]: 0
+LSUS[7]: 0	 T[7]: 0
 malloc_count ### exiting, total: 23,320, peak: 22,216, current: 1,176
 ```
