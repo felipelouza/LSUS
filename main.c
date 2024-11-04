@@ -218,12 +218,12 @@ int main(int argc, char *argv[]){
   if(pri ==1){
     for(int_t i=0; i<n; i++){
       if(T[i]!=1 && T[i]!=0){
-        printf("LSUS[%" PRIdN "]: \t %" PRIdN "\t T[%" PRIdN "]:\t %c\n", i, LSUS[i], i, T[i]-1);
+        printf("LSUS[%" PRIdN "]: %" PRIdN "\t T[%" PRIdN "]: %c\n", i, LSUS[i], i, T[i]-1);
       }
       else if(T[i]==1)
-        printf("LSUS[%"PRIdN"]: \t %"PRIdN"\t T[%"PRIdN"]:\t %d\n", i, LSUS[i], i, 1);
+        printf("LSUS[%"PRIdN"]: %"PRIdN"\t T[%"PRIdN"]: %d\n", i, LSUS[i], i, 1);
       else if(T[i]==0)
-        printf("LSUS[%"PRIdN"]: \t %"PRIdN"\t T[%"PRIdN"]:\t %d\n", i, LSUS[i], i, 0);
+        printf("LSUS[%"PRIdN"]: %"PRIdN"\t T[%"PRIdN"]: %d\n", i, LSUS[i], i, 0);
     }
   }
   //VALIDATION
