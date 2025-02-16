@@ -26,6 +26,21 @@
 
 /*************************************/
 
+void help(char *name){
+  printf("\n\tUsage: %s FILENAME [options]\n\n",name);
+  puts("Available options:\n");
+  
+  printf(" \
+\t -A a  preferred algorithm to use (default 3)\n \
+\t -k K  use the first K strings of the INPUT\n \
+\t -o  output computed array to disk (INPUT.%zu.lsus)\n \
+\t -t  print the running time\n \
+\t -c  check output (for debug)\n \
+\t -p  print the output (for debug)\n \
+\t -h  this help message\n\n",sizeof(int_t));
+  exit(EXIT_FAILURE);
+}
+
 int main(int argc, char *argv[]){
 
   time_t t_start=0, t_total=0;
@@ -33,10 +48,10 @@ int main(int argc, char *argv[]){
 
   extern char *optarg;
   extern int optind, opterr, optopt;
-  char *c_file=NULL;
-  int c, alg = 3, check = 0, p = 0, time=0;
+  char *c_file=NULL, *c_output=NULL;
+  int c, alg = 3, check = 0, p = 0, time=0, output=0;
   int_t k=0;
-  while ((c = getopt(argc, argv, "A:pctk:")) != -1){
+  while ((c = getopt(argc, argv, "A:pctk:oh")) != -1){
     switch (c){
       case 'A':
         alg=(int)atoi(optarg);
@@ -52,6 +67,12 @@ int main(int argc, char *argv[]){
         break;
       case 'k'://number of sequences (from input)
         k=(int_t)atoi(optarg);
+        break;
+      case 'o'://number of sequences (from input)
+        output=1;
+        break;
+      case 'h':
+        help(argv[0]);
         break;
       default:
         break;
@@ -114,13 +135,10 @@ int main(int argc, char *argv[]){
     sacak((unsigned char *)T, SA, n);
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
     if(time) time_start(&t_start, &c_start);
-    PHI = LCP;
-    printf("## PHI ##\n");
-    buildPHI(PHI, n, SA);
-    if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
-    if(time) time_start(&t_start, &c_start);
-    PLCP = (uint_t *)malloc((n + 1) * sizeof(uint_t));
     printf("## LCP ##\n");
+    PHI = LCP;
+    buildPHI(PHI, n, SA);
+    PLCP = (uint_t *)malloc((n + 1) * sizeof(uint_t));
     buildPLCP(PLCP, PHI, T, n);
     lcp_plcp(LCP, PLCP, SA, n);
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
@@ -174,6 +192,19 @@ int main(int argc, char *argv[]){
   printf("## TOTAL ##\n");
   fprintf(stderr,"%.6lf\n", time_stop(t_total, c_total));
 
+  if(output){
+    //filename
+    c_output = (char*) malloc(strlen(c_file)+10);
+    char *dot = strrchr(c_file, '.');
+    *dot = '\0';
+    sprintf(c_output, "%s.%zu.lsus", c_file, sizeof(int_t));
+
+    FILE *f_out = file_open(c_output, "wb");
+    fwrite(LSUS, sizeof(int_t), n, f_out);
+    fclose(f_out);
+    
+    printf("OUTPUT = %s\n", c_output);
+  }
 
   if(p ==1){
     for(int_t i=0; i<n; i++)

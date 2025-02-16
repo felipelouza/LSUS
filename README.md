@@ -1,9 +1,15 @@
 # LSUS
-LSUS is a tool for computing the the array A[1,n] that stores the length of all Shortest Unique Substring that begin in each index i of a string S[1,n].
 
-## Compilation and installation
+This tool computes the LSUS array A[1,n], which stores the length of all Shortest Unique Substring that begin in each index i of a string S[1,n].
 
-LSUS will compile in systems with a standard C compiler (like gcc) and make.
+## Installation
+
+**Build requirements**
+
+An ANSI C Compiler (e.g. GNU GCC) and make.
+
+
+**Download**
 
 ```sh
 git clone https://github.com/felipelouza/LSUS.git
@@ -13,9 +19,21 @@ make
 
 For inputs larger than **4GB**, **_lsus-64_** must be used.
 
+**Available options:**
+
+```sh
+-A a	preferred algorithm to use (default 3)
+-k K	use the first K strings of the INPUT
+-o	output computed array to disk (INPUT.4.lsus)
+-t  print the running time	
+-c	check output (for debug)
+-p  print the output (for debug)
+-h	this help message
+```
+
 ## Example
 
-Given the following input:
+Given a string stored in an input file (dataset/example.txt):
 
 ```c
 more dataset/example.txt
