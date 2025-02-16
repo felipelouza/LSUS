@@ -1006,7 +1006,7 @@ int_t SACA_K(int_t *s, uint_t *SA,
   // stage 1: reduce the problem by at least 1/2.
   if(level==0) {
 
-    bkt=(uint_t *)malloc(sizeof(int_t)*K);
+    bkt=(uint_t *)malloc(sizeof(int_t)*(K+1));
     putSubstr0(SA, s, bkt, n, K, cs);
 
 #if DEBUG

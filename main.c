@@ -35,7 +35,8 @@ int main(int argc, char *argv[]){
   extern int optind, opterr, optopt;
   char *c_file=NULL;
   int c, alg = 3, check = 0, p = 0, time=0;
-  while ((c = getopt(argc, argv, "A:kpct")) != -1){
+  int_t k=0;
+  while ((c = getopt(argc, argv, "A:pctk:")) != -1){
     switch (c){
       case 'A':
         alg=(int)atoi(optarg);
@@ -49,11 +50,15 @@ int main(int argc, char *argv[]){
       case 't':
         time=1;
         break;
+      case 'k'://number of sequences (from input)
+        k=(int_t)atoi(optarg);
+        break;
       default:
         break;
     }
   }
   free(optarg);
+  printf("k=%" PRIdN"\n",k);
 
   if(optind+1==argc) {
     c_file=argv[optind++];
@@ -63,11 +68,10 @@ int main(int argc, char *argv[]){
 
   if(time) time_start(&t_start, &c_start);
   printf("## PREPROCESSING ##\n");
-  int_t k=0;
   size_t n=0;
   unsigned char **R = (unsigned char**) file_load_multiple(c_file, &k, &n);
 
-  if(n>pow(2,32) && (sizeof(int_t)==sizeof(int32_t))){
+  if(n>=pow(2,32) && (sizeof(int_t)==sizeof(int32_t))){
     fprintf(stderr, "####\n");
     fprintf(stderr, "ERROR: INPUT LARGER THAN %.1lf GB (%.1lf GB)\n", WORD/pow(2,30), n/pow(2,30));
     fprintf(stderr, "PLEASE USE %s-64\n", argv[0]);
