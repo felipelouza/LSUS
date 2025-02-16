@@ -20,11 +20,11 @@
 #define END_MARKER '$'
 
 #ifndef M64
-	#define M64 0
+#define M64 0
 #endif
 
 #ifndef DEBUG
-	#define DEBUG 0 
+#define DEBUG 0 
 #endif
 
 #define CAT 0
@@ -32,21 +32,19 @@
 #define SEPARATOR 0
 
 #if M64
-	typedef int64_t  int_t;
-	typedef uint64_t uint_t;
-	#define PRIdN	 PRId64
-	#define U_MAX 	 UINT64_MAX
-	#define I_MAX 	 INT64_MAX
-	#define I_MIN 	 INT64_MIN
-	#define INT_T_FORMAT PRId64
+typedef int64_t  int_t;
+typedef uint64_t uint_t;
+#define PRIdN	 PRId64
+#define U_MAX 	 UINT64_MAX
+#define I_MAX 	 INT64_MAX
+#define I_MIN 	 INT64_MIN
 #else
-	typedef int32_t  int_t;
-	typedef uint32_t uint_t;
-	#define PRIdN	 PRId32
-	#define U_MAX 	 UINT32_MAX
-	#define I_MAX	 INT32_MAX
-	#define I_MIN	 INT32_MIN
-	#define INT_T_FORMAT PRId32
+typedef int32_t  int_t;
+typedef uint32_t uint_t;
+#define PRIdN	 PRId32
+#define U_MAX 	 UINT32_MAX
+#define I_MAX	 INT32_MAX
+#define I_MIN	 INT32_MIN
 #endif
 
 typedef uint32_t int_text;

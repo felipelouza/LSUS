@@ -14,7 +14,6 @@
 #include <time.h>
 #include <unistd.h>
 
-//#include "external/gsacak.h"
 #include "external/sacak-lcp.h"
 #include "lib/lsus.h"
 #include "lib/file.h"
@@ -23,6 +22,7 @@
 
 #define lcp(i) ((i < n) ? (LCP[i]) : (0))
 
+#define WORD (size_t)(pow(256,sizeof(int_t)))
 
 /*************************************/
 
@@ -34,17 +34,17 @@ int main(int argc, char *argv[]){
   extern char *optarg;
   extern int optind, opterr, optopt;
   char *c_file=NULL;
-  int c, alg = 0, comp = 0, pri = 0, time=0;
+  int c, alg = 3, check = 0, p = 0, time=0;
   while ((c = getopt(argc, argv, "A:kpct")) != -1){
     switch (c){
       case 'A':
         alg=(int)atoi(optarg);
         break;
       case 'p':
-        pri = 1;
+        p = 1;
         break;
       case 'c':
-        comp = 1;
+        check = 1;
         break;
       case 't':
         time=1;
@@ -59,15 +59,24 @@ int main(int argc, char *argv[]){
     c_file=argv[optind++];
   }
 
-  //================================
-  //PREPROCESSING FASTA
-  //================================
+  /**/
 
   if(time) time_start(&t_start, &c_start);
   printf("## PREPROCESSING ##\n");
   int_t k=0;
   size_t n=0;
   unsigned char **R = (unsigned char**) file_load_multiple(c_file, &k, &n);
+
+  if(n>pow(2,32) && (sizeof(int_t)==sizeof(int32_t))){
+    fprintf(stderr, "####\n");
+    fprintf(stderr, "ERROR: INPUT LARGER THAN %.1lf GB (%.1lf GB)\n", WORD/pow(2,30), n/pow(2,30));
+    fprintf(stderr, "PLEASE USE %s-64\n", argv[0]);
+    fprintf(stderr, "####\n");
+    for(int_t i=0; i<k; i++) free(R[i]); 
+    free(R);
+    exit(EXIT_FAILURE);
+  }
+
 
   //concatenate all string
   unsigned char *T =cat_char(R, k, &n);
@@ -77,180 +86,119 @@ int main(int argc, char *argv[]){
 
   //free memory
   if (*R!=NULL){
-    for(int_t i=0; i<k; i++){
-      free(R[i]);
-    }
+    for(int_t i=0; i<k; i++) free(R[i]);
     free(R);
   }
 
   if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
 
-  if(time) time_start(&t_total, &c_total);
+  time_start(&t_total, &c_total);
   uint_t *SA = NULL;
-  int_t *LCP = NULL;
-  //int *ISA = NULL;
-  int_t *PHI = NULL;
-  int_t *PLCP = NULL;
-  int_t *LSUS = NULL;
+  uint_t *LCP = NULL;
+  uint_t *PHI = NULL;
+  uint_t *PLCP = NULL;
+  uint_t *LSUS = NULL;
 
   SA = (uint_t *)malloc((n + 1) * sizeof(uint_t));
 
-  //IKXSUS (TCS 2015)
-  //T + SA + LCP = 9n bytes
+  //IKXLSUS (TCS 2015)
+  //T + SA + LCP + LSUS = 13n bytes
   if(alg == 1){
-    LCP = (int_t *)malloc((n + 1) * sizeof(int_t));
+    LCP = (uint_t *)malloc((n + 1) * sizeof(uint_t));
     if(time) time_start(&t_start, &c_start);
-    //printf("## SACAK_lcp ##\n");
-    //sacak_lcp((unsigned char *)T, (uint_t *)SA, (int_t *)LCP, n);
-    sacak((unsigned char *)T, (uint_t *)SA, n);
-    PHI = (int_t*) LCP;
+    printf("## SACAK ##\n");
+    sacak((unsigned char *)T, SA, n);
+    if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
+    if(time) time_start(&t_start, &c_start);
+    PHI = LCP;
+    printf("## PHI ##\n");
     buildPHI(PHI, n, SA);
-    PLCP = (int_t *)malloc((n + 1) * sizeof(int_t));
+    if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
+    if(time) time_start(&t_start, &c_start);
+    PLCP = (uint_t *)malloc((n + 1) * sizeof(uint_t));
+    printf("## LCP ##\n");
     buildPLCP(PLCP, PHI, T, n);
     lcp_plcp(LCP, PLCP, SA, n);
-    LSUS = PLCP;
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
   }
-  //HTXSUS (TCS 2017)
-  //T + SA = 5n bytes
+  //HTXLSUS (TCS 2017)
+  //T + SA + LSUS = 13n bytes
   if(alg==2){
     if(time) time_start(&t_start, &c_start);
     printf("## SACAK ##\n");
-    sacak((unsigned char *)T, (uint_t *)SA, n);
+    sacak((unsigned char *)T, SA, n);
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
   }
-
-  //SUS_1 e SUS_2 
-  //T + SA (PLCP) + PHI = 9n bytes
-  int_t sa_last=0;
-  if(alg == 3 || alg == 4 || alg == 5 || alg == 6){
-
+  //PLCPLSUS 
+  //T + SA (LSUS) + PHI (PLCP) = 9n bytes
+  if(alg==3){
     if(time) time_start(&t_start, &c_start);
     printf("## SACAK ##\n");
-    sacak((unsigned char *)T, (uint_t *)SA, n);
-    //if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
-
-    sa_last = SA[n-1];
-    PHI = (int_t *)malloc((n + 1) * sizeof(int_t));
-
-    //if(time) time_start(&t_start, &c_start);
-    printf("## PHI ##\n");
-    buildPHI(PHI, n, SA);//8n bytes 
-    //if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
-
-    PLCP = (int_t*) SA;
-
-    //if(time) time_start(&t_start, &c_start);
-    printf("## PLCP ##\n");
-    buildPLCP(PLCP, PHI, T, n);//9n
-    if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
-  }
-
-  //PLCPSUS 
-  //T + SA + PHI = 9n bytes
-  if(alg==7){
+    sacak((unsigned char *)T, SA, n);
+    if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
     if(time) time_start(&t_start, &c_start);
-    printf("## SACAK ##\n");
-    sacak((unsigned char *)T, (uint_t *)SA, n);
-    //if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
-
-    PHI = (int_t *)malloc((n + 1) * sizeof(int_t));
-    //if(time) time_start(&t_start, &c_start);
-    //sacak_phi((unsigned char *)T, (uint_t *)SA, PHI, n);
+    PHI = (uint_t *)malloc((n + 1) * sizeof(uint_t));
     printf("## PHI ##\n");
     buildPHI(PHI, n, SA);//8n bytes 
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
-
-    if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
   }
 
-  //================================
-  //ALGORITHMS
-  //================================
+  /**/
 
   if(time) time_start(&t_start, &c_start);
   switch (alg){
-    case 1: printf("## IKXSUS ##\n");
-            //4n bytes 
-            //LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            IKXSUS(T, LSUS, n, LCP, SA); //13n bytes
-            break;
-    case 2: printf("## HTXSUS ##\n");
-            LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            int_t *A = (int_t*) SA;
-            int_t *B = LSUS;
-            HTXSUS(T, A, B, n); //9n bytes
-            break;
-    case 3: printf("## LSUS_13n_v1 ##\n");
-            LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            LSUS13_1(T, PLCP, PHI, LSUS, n); //13n bytes
-            break; 
-    case 4: printf("## LSUS_13n_v2 ##\n");
-            LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            LSUS13_2(T, PLCP, PHI, LSUS, n); //13n bytes
-            break; 
-    case 5: printf("## LSUS_9n_v1 ##\n");
+    case 1: printf("## IKX_LSUS ##\n");
             LSUS = PLCP;
-            LSUS9_1(T, LSUS, PHI, sa_last, n); //9n bytes
+            IKXLSUS(T, LSUS, SA, LCP, n); //13n bytes
             break;
-    case 6: printf("## LSUS_9n_v2 ##\n");
-            LSUS=PHI;
-            LSUS9_2(T, PLCP, LSUS, sa_last, n); //9n bytes
+    case 2: printf("## HTX_LSUS ##\n");
+            LSUS = (uint_t *)malloc((n+1) * sizeof(uint_t));
+            uint_t *A = SA;
+            uint_t *B = LSUS;
+            HTXLSUS(T, A, B, n); //9n bytes
             break;
-    case 7: printf("## PLCPSUS ##\n");
-            //LSUS = (int_t *)malloc((n+1) * sizeof(int_t));
-            //PLCP = (int_t*) SA; 
+    case 3: printf("## PLCP_LSUS ##\n");
             PLCP = PHI;
-            LSUS = (int_t*) SA;
-            PLCPSUS(T, PLCP, PHI, LSUS, n); //9n bytes
+            LSUS = SA;
+            PLCPLSUS(T, PLCP, PHI, LSUS, n); //9n bytes
             break;
     default:
             break;
   }
   if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
 
+  printf("## TOTAL ##\n");
+  fprintf(stderr,"%.6lf\n", time_stop(t_total, c_total));
 
 
-  if(time) printf("## TOTAL ##\n");
-  if(time) fprintf(stderr,"%.6lf\n", time_stop(t_total, c_total));
-
-
-  if(pri ==1){
-    for(int_t i=0; i<n; i++){
-      if(T[i]!=1 && T[i]!=0){
+  if(p ==1){
+    for(int_t i=0; i<n; i++)
+      if(T[i]!=1 && T[i]!=0)
         printf("LSUS[%" PRIdN "]: %" PRIdN "\t T[%" PRIdN "]: %c\n", i, LSUS[i], i, T[i]-1);
-      }
-      else if(T[i]==1)
-        printf("LSUS[%"PRIdN"]: %"PRIdN"\t T[%"PRIdN"]: %d\n", i, LSUS[i], i, 1);
-      else if(T[i]==0)
-        printf("LSUS[%"PRIdN"]: %"PRIdN"\t T[%"PRIdN"]: %d\n", i, LSUS[i], i, 0);
-    }
+      else 
+        printf("LSUS[%"PRIdN"]: %"PRIdN"\t T[%"PRIdN"]: %d\n", i, LSUS[i], i, T[i]);
   }
+
   //VALIDATION
-  if (comp == 1){
+  if (check == 1){
+    uint_t* A = (uint_t *)malloc((n + 1) * sizeof(uint_t));
+    int_t* B = (int_t *)malloc((n + 1) * sizeof(int_t));
+    sacak_lcp((unsigned char *)T, A, B, n);
 
-    int_t* LCP2 = (int_t *)malloc((n + 1) * sizeof(int_t));
-    uint_t* SA2 = (uint_t *)malloc((n + 1) * sizeof(uint_t));
-    sacak_lcp((unsigned char *)T, (uint_t *)SA2, (int_t *)LCP2, n);
+    uint_t *C = (uint_t *)malloc((n+1) * sizeof(uint_t));
+    IKXLSUS(T, C, A, (uint_t*)B, n);
+    if (!equal(LSUS, C, n)) printf("ERROR!\n");  
+    else printf("OK!\n");  
 
-    int_t *SUS2 = (int_t *)malloc((n+1) * sizeof(int_t));
-    IKXSUS(T, SUS2, n, LCP2, SA2);
-    if (!equal(LSUS, SUS2, n))
-      printf("ERROR!\n");  
-    else
-      printf("OK!\n");  
-
-    free(SUS2); free(LCP2); free(SA2);
+    free(A); free(B); free(C);
   }
 
-  if( alg == 1 || alg == 2 || alg==3 || alg == 4 ){
-    free(LSUS);
-  }
+  if(alg == 1 || alg == 2) free(LSUS);
+  if(alg == 1) free(LCP);
+  if(alg == 3) free(PLCP);
 
   free(T);
   free(SA);
-  if(alg==5 || alg==6)
-    free(PHI);
 
 return 0;
 }

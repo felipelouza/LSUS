@@ -11,22 +11,17 @@
 
 
 
-void IKXSUS(unsigned char *T, int_t *SUS, int_t n, int_t *LCP, uint_t *SA);
-void HTXSUS(unsigned char *T, int_t *A, int_t *B, int_t n);
+void IKXLSUS(unsigned char *T, uint_t *LSUS, uint_t *SA, uint_t *LCP, uint_t n);
+void HTXLSUS(unsigned char *T, uint_t *A, uint_t *B, uint_t n);
+void PLCPLSUS(unsigned char *T, uint_t *PLCP, uint_t *PHI, uint_t *LSUS, uint_t n);
 
-void LSUS13_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n);
-void LSUS13_2(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n);
-void LSUS9_1(unsigned char *T, int_t *PLCP, int_t *PHI, int_t sa_last, int_t n);
-void LSUS9_2(unsigned char *T, int_t *PLCP, int_t *PHI, int_t sa_last, int_t n);
-void PLCPSUS(unsigned char *T, int_t *PLCP, int_t *PHI, int_t *SUS, int_t n);
-
-bool equal(int_t *v1, int_t *v2, int_t tam);
-void buildPLCP(int_t *PLCP, int_t *PHI, unsigned char *T, int_t n); //9n bytes
+bool equal(uint_t *v1, uint_t *v2, uint_t n);
+void buildPLCP(uint_t *PLCP, uint_t *PHI, unsigned char *T, uint_t n); //9n bytes
 void isa(int_t *ISA, int_t n, uint_t *SA);
 void phi (int_t *PHI, int_t n, int_t *ISA, uint_t *SA);
-void buildPHI(int_t *PHI, int_t n, uint_t *SA);
-void print(uint_t *SA, int_t *SUS, unsigned char *T, int_t n);
-void lcp_plcp(int_t *LCP, int_t *PLCP, uint_t *SA, int_t n);
+void buildPHI(uint_t *PHI, uint_t n, uint_t *SA);
+void print(uint_t *SA, uint_t *LSUS, unsigned char *T, uint_t n);
+void lcp_plcp(uint_t *LCP, uint_t *PLCP, uint_t *SA, uint_t n);
 
 #endif
 
