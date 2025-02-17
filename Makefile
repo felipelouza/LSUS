@@ -48,3 +48,6 @@ clean:
 
 run:
 	./lsus $(INPUT) -A $(ALG) -t
+
+valgrind:
+	valgrind -q --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./lsus-64 $(INPUT) -A $(ALG) -t
