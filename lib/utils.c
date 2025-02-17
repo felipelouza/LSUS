@@ -56,7 +56,7 @@ unsigned char* cat_char(unsigned char** R, int_t k, size_t *n){
   (*n)++; //add 0 at the end
 
   int_t i, j;
-  uint_t l=0;
+  size_t l=0;
   unsigned char *str = (unsigned char*) malloc((*n+1)*sizeof(unsigned char));
 
   for(i=0; i<k; i++){
@@ -68,7 +68,7 @@ unsigned char* cat_char(unsigned char** R, int_t k, size_t *n){
     }
     for(j=0; j<m; j++){
       //removes symbols > 255
-      if(R[i][j]+1<256 && R[i][j]+1>0) str[l++] = R[i][j]+1;
+      if(R[i][j]+1<255 && R[i][j]+1>0) str[l++] = R[i][j]+1;
       else (*n)--;
     }
 #if CAT == 1
@@ -76,9 +76,9 @@ unsigned char* cat_char(unsigned char** R, int_t k, size_t *n){
 #endif
   }
 
-  str[l++]=0;
+  str[l++]=TERMINATOR;
   if(*n>l){
-    str = (unsigned char*) realloc(str, (l)*sizeof(unsigned char));
+    str = (unsigned char*) realloc(str, (l+1)*sizeof(unsigned char));
     //printf("N = %" PRIdN "\n", l);
   }
   *n = l;

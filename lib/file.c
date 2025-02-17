@@ -128,6 +128,7 @@ char** load_multiple_txt(char *c_file, int_t *k, size_t *n) {
     ssize_t size = getline(&c_buffer[i], &len, f_in);
     if (size == -1){
       *k = i;
+      free(c_buffer[i]);
       break;		
     }
     c_buffer[i][size-1] = 0;

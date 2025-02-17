@@ -132,7 +132,7 @@ int main(int argc, char *argv[]){
     LCP = (uint_t *)malloc((n + 1) * sizeof(uint_t));
     if(time) time_start(&t_start, &c_start);
     printf("## SACAK ##\n");
-    sacak((unsigned char *)T, SA, n);
+    sacak(T, SA, n);
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
     if(time) time_start(&t_start, &c_start);
     printf("## LCP ##\n");
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]){
   if(alg==2){
     if(time) time_start(&t_start, &c_start);
     printf("## SACAK ##\n");
-    sacak((unsigned char *)T, SA, n);
+    sacak(T, SA, n);
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start)); 
   }
   //PLCPLSUS 
@@ -156,7 +156,7 @@ int main(int argc, char *argv[]){
   if(alg==3){
     if(time) time_start(&t_start, &c_start);
     printf("## SACAK ##\n");
-    sacak((unsigned char *)T, SA, n);
+    sacak(T, SA, n);
     if(time) fprintf(stderr,"%.6lf\n", time_stop(t_start, c_start));
     if(time) time_start(&t_start, &c_start);
     PHI = (uint_t *)malloc((n + 1) * sizeof(uint_t));
@@ -218,7 +218,7 @@ int main(int argc, char *argv[]){
   if (check == 1){
     uint_t* A = (uint_t *)malloc((n + 1) * sizeof(uint_t));
     int_t* B = (int_t *)malloc((n + 1) * sizeof(int_t));
-    sacak_lcp((unsigned char *)T, A, B, n);
+    sacak_lcp(T, A, B, n);
 
     uint_t *C = (uint_t *)malloc((n+1) * sizeof(uint_t));
     IKXLSUS(T, C, A, (uint_t*)B, n);
