@@ -224,7 +224,7 @@ char** file_load_multiple(char* c_file, int_t *k, size_t *n) {
   const char *type = get_filename_ext(c_file);
 
   char **c_buffer = NULL; // = (char**) malloc(k*sizeof(char*));
-  if(*k==0) *k=INT_MAX;
+  if(*k==0) *k=I_MAX;
 
   if(strcmp(type,"txt") == 0){
     c_buffer = load_multiple_txt(c_file, k, n);

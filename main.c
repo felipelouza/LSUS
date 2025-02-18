@@ -124,6 +124,10 @@ int main(int argc, char *argv[]){
   uint_t *PLCP = NULL;
   uint_t *LSUS = NULL;
 
+  int a=2;//number of int arrays
+  if(alg==1) a++;
+  printf("MEM = %.2lf GB\n", n*(a*sizeof(int_t)+sizeof(char))/pow(2,30));
+
   SA = (uint_t *)malloc((n + 1) * sizeof(uint_t));
 
   //IKXLSUS (TCS 2015)
@@ -166,7 +170,6 @@ int main(int argc, char *argv[]){
   }
 
   /**/
-
   if(time) time_start(&t_start, &c_start);
   switch (alg){
     case 1: printf("## IKX_LSUS ##\n");
