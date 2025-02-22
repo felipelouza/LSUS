@@ -69,7 +69,11 @@ void buildPLCP(uint_t *PLCP, uint_t *PHI, unsigned char *T, uint_t n){ //9n byte
   for (uint_t i = 0; i <= n; i++){
     k = PHI[i];
     if (k != n){
+#if N_SPECIAL
+      while (k+l<n && i+l<n && T[k + l] == T[i + l] && T[k+l]!=('N'+1) && T[k+l]!=('n'+1)){
+#else
       while (k+l<n && i+l<n && T[k + l] == T[i + l]){
+#endif
         l++;
       }
       PLCP[i] = l;
@@ -114,14 +118,22 @@ void HTXLSUS(unsigned char *T, uint_t *A, uint_t *B, uint_t n){
   for (uint_t i = 0; i < n; i++){
     if(ISA[i]>0){
       uint_t j = SA[ISA[i]-1];
+#if N_SPECIAL
+      while(i+x<n && j+x<n && T[i+x] == T[j+x] && T[i+x]!=('N'+1) && T[i+x]!=('n'+1)) x++; // && T[i+x] != 0 && T[i+x] != 1
+#else
       while(i+x<n && j+x<n && T[i+x] == T[j+x]) x++; // && T[i+x] != 0 && T[i+x] != 1
+#endif
     }
     else{
       x=0;
     }
     if(ISA[i] < n-1){
       uint_t j = SA[ISA[i]+1];
+#if N_SPECIAL
+      while(i+y<n && j+y<n && T[i+y] == T[j+y] && T[i+y]!=('N'+1) && T[i+y]!=('n'+1)) y++;
+#else
       while(i+y<n && j+y<n && T[i+y] == T[j+y]) y++;
+#endif
     }
     else{
       y = 0;
@@ -155,7 +167,11 @@ void PLCPLSUS(unsigned char *T, uint_t *PLCP, uint_t *PHI, uint_t *LSUS, uint_t 
     k = PHI[i];
     if (k != n){
       //current LCP
+#if N_SPECIAL
+      while (k+l<n && i+l<n && T[k + l] == T[i + l] && T[k+l]!=('N'+1) && T[k+l]!=('n'+1)){
+#else
       while (k+l<n && i+l<n && T[k + l] == T[i + l]){
+#endif
         l++;
       }
 

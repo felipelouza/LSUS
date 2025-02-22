@@ -13,8 +13,8 @@
 #include <inttypes.h>
 #include <math.h>
 
-#ifndef UCHAR_SIZE
-#define UCHAR_SIZE 256
+#ifndef N_SPECIAL
+#define N_SPECIAL 0
 #endif
 
 #define END_MARKER '$'

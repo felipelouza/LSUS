@@ -2,8 +2,9 @@ CC = gcc
 CFLAGS += -Wall 
 #CFLAGS += -g -O0
 
-CFLAGS += -D_FILE_OFFSET_BITS=64 -m64 -O3 -fomit-frame-pointer -Wno-char-subscripts 
+N_SPECIAL = 0
 
+CFLAGS += -D_FILE_OFFSET_BITS=64 -m64 -O3 -fomit-frame-pointer -Wno-char-subscripts -DN_SPECIAL=${N_SPECIAL}
 LFLAGS = -lm -lrt -ldl
 
 MALLOC_COUNT = external/malloc_count/malloc_count.o
